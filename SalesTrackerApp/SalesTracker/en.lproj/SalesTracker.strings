@@ -1,0 +1,15 @@
+"LOGIN_INVALID_CREDENTIALS" = "Invalid credentials.";
+"LOGIN_CONNECTION_FAILED" = "Failed to connect. Please try again.";
+"LOGIN_TOKEN_NOT_STORED" = "Signed in, but the session could not be saved on this device.";
+"PRODUCTS_TITLE" = "Products";
+"PRODUCT_SALES_COUNT_FORMAT" = "%d sales";
+"PRODUCT_SALES_COUNT_ONE" = "1 sale";
+"PRODUCT_DETAIL_SUBTITLE_FORMAT" = "(%@ from %@)";
+"PRODUCT_DETAIL_SUBTITLE_WITHOUT_RATES_FORMAT" = "(%@)";
+"PRODUCT_DETAIL_UNCONVERTIBLE_FORMAT" = "%d without a USD rate";
+"USD_UNAVAILABLE" = "USD rate unavailable";
+"USD_PENDING" = "Converting…";
+"LOAD_FAILED_MESSAGE" = "Couldn't load the data. Pull to refresh to try again.";
+"RATES_FAILED_MESSAGE" = "Couldn't load the exchange rates, so USD amounts are unavailable.";
+"EMPTY_PRODUCTS_MESSAGE" = "No products yet.";
+"EMPTY_SALES_MESSAGE" = "No sales for this product yet.";
