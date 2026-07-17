@@ -40,21 +40,22 @@ public struct ProductDetailPresenter {
         self.formatter = formatter
     }
 
+    /// `converter` is `nil` while the rates have not arrived - the middleware cold-starts in about
+    /// fourteen seconds, and the sales are the user's data: they go on screen straight away. Without
+    /// rates there is no honest total to show, so the subtitle reports the count alone.
     public func viewModel(
         for product: Product,
         sales: [Sale],
-        converter: CurrencyConverter
+        converter: CurrencyConverter?
     ) -> ProductDetailViewModel {
-        let total = converter.totalInUSD(sales.map { (amount: $0.amount, currency: $0.currencyCode) })
-
-        return ProductDetailViewModel(
+        ProductDetailViewModel(
             title: product.name,
-            subtitle: subtitle(total: total, salesCount: sales.count),
+            subtitle: subtitle(for: sales, converter: converter),
             sales: sales.map { sale in
                 SaleViewModel(
                     amount: formatter.amount(sale.amount, currency: sale.currencyCode),
                     date: formatter.date(sale.date),
-                    amountInUSD: converter.amountInUSD(sale.amount, currency: sale.currencyCode).map(formatter.usd)
+                    amountInUSD: converter?.amountInUSD(sale.amount, currency: sale.currencyCode).map(formatter.usd)
                 )
             }
         )
@@ -62,12 +63,24 @@ public struct ProductDetailPresenter {
 
     // MARK: - Helpers
 
-    private func subtitle(total: CurrencyConverter.Total, salesCount: Int) -> String {
-        let sales = SalesTrackerStrings.salesCount(salesCount)
+    private func subtitle(for sales: [Sale], converter: CurrencyConverter?) -> String {
+        let count = SalesTrackerStrings.salesCount(sales.count)
+
+        guard let converter else {
+            return String(format: SalesTrackerStrings.localized("PRODUCT_DETAIL_SUBTITLE_WITHOUT_RATES_FORMAT"), count)
+        }
+
+        return subtitle(
+            total: converter.totalInUSD(sales.map { (amount: $0.amount, currency: $0.currencyCode) }),
+            salesCount: count
+        )
+    }
+
+    private func subtitle(total: CurrencyConverter.Total, salesCount: String) -> String {
         var subtitle = String(
             format: SalesTrackerStrings.localized("PRODUCT_DETAIL_SUBTITLE_FORMAT"),
             formatter.usd(total.amount),
-            sales
+            salesCount
         )
 
         if total.unconvertibleCount > 0 {

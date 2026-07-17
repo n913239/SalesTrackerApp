@@ -54,21 +54,19 @@ enum SalesTrackerUIComposer {
     ) -> ProductDetailViewController {
         let viewController = ProductDetailViewController(product: product)
 
+        // The two loads are handed over separately, and the view controller runs them concurrently.
+        // Neither the failure nor the slowness of the rates can keep the sales off the screen: the
+        // middleware is on a free tier and cold-starts in about fourteen seconds.
         viewController.onLoad = {
             do {
-                // The sales and the rates are loaded together, but a failing rates request only
-                // costs the USD column. Awaiting the rates before showing anything - as the first
-                // version did - left the whole screen empty whenever the middleware cold-started.
-                async let sales = catalogue()
-                async let loadedRates = rates()
-
-                let salesOfProduct = try await sales.sales(of: product)
-                let resolvedRates = try? await loadedRates
-
-                return .success(ProductDetailViewController.Content(sales: salesOfProduct, rates: resolvedRates))
+                return .success(try await catalogue().sales(of: product))
             } catch {
                 return .failure(error)
             }
+        }
+
+        viewController.onLoadRates = {
+            try? await rates()
         }
 
         return viewController
