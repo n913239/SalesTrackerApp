@@ -30,44 +30,10 @@
       shouldUseLaunchSchemeArgsEnv = "YES">
       <TestPlans>
          <TestPlanReference
-            reference = "container:CI_iOS.xctestplan">
+            reference = "container:CI_iOS.xctestplan"
+            default = "YES">
          </TestPlanReference>
       </TestPlans>
-      <Testables>
-         <TestableReference
-            skipped = "NO"
-            parallelizable = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "276F3C32300A8C790061026B"
-               BuildableName = "SalesTrackerTests.xctest"
-               BlueprintName = "SalesTrackerTests"
-               ReferencedContainer = "container:SalesTrackerApp.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
-         <TestableReference
-            skipped = "NO"
-            parallelizable = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "276F3C3D300A8C8A0061026B"
-               BuildableName = "SalesTrackerAppTests.xctest"
-               BlueprintName = "SalesTrackerAppTests"
-               ReferencedContainer = "container:SalesTrackerApp.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
-         <TestableReference
-            skipped = "NO"
-            parallelizable = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "276F3C4A300A8C950061026B"
-               BuildableName = "SalesTrackeriOSTests.xctest"
-               BlueprintName = "SalesTrackeriOSTests"
-               ReferencedContainer = "container:SalesTrackerApp.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
-      </Testables>
    </TestAction>
    <LaunchAction
       buildConfiguration = "Debug"

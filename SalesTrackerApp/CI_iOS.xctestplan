@@ -1,0 +1,53 @@
+{
+  "configurations" : [
+    {
+      "id" : "C309B0EA-3467-4977-8F52-D1D93E11407D",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "codeCoverage" : {
+      "targets" : [
+        {
+          "containerPath" : "container:SalesTrackerApp.xcodeproj",
+          "identifier" : "276F3B91300A86CE0061026B",
+          "name" : "SalesTracker"
+        },
+        {
+          "containerPath" : "container:SalesTrackerApp.xcodeproj",
+          "identifier" : "276F3B74300A86B50061026B",
+          "name" : "SalesTrackerApp"
+        }
+      ]
+    },
+    "testExecutionOrdering" : "random",
+    "testTimeoutsEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:SalesTrackerApp.xcodeproj",
+        "identifier" : "276F3C4A300A8C950061026B",
+        "name" : "SalesTrackeriOSTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:SalesTrackerApp.xcodeproj",
+        "identifier" : "276F3C32300A8C790061026B",
+        "name" : "SalesTrackerTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:SalesTrackerApp.xcodeproj",
+        "identifier" : "276F3C3D300A8C8A0061026B",
+        "name" : "SalesTrackerAppTests"
+      }
+    }
+  ],
+  "version" : 1
+}
