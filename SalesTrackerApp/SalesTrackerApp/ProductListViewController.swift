@@ -48,12 +48,29 @@ public final class ProductListViewController: UITableViewController {
     }
 
     @objc public func refresh() {
-        refreshControl?.beginRefreshing()
+        beginRefreshing()
         display(message: nil)
 
+        // Held onto here rather than reached through `self` inside the task: `await self?.onLoad?()`
+        // would keep the view controller alive for as long as the request is in flight.
+        let load = onLoad
+
         Task { [weak self] in
-            guard let result = await self?.onLoad?() else { return }
+            guard let result = await load?() else { return }
             self?.display(result)
+        }
+    }
+
+    /// `beginRefreshing()` on its own only sets the state: the spinner sits above the content and
+    /// stays out of sight unless the table is scrolled down to it. A load the user did not start by
+    /// pulling would otherwise show nothing at all.
+    private func beginRefreshing() {
+        guard let refreshControl, !refreshControl.isRefreshing else { return }
+
+        refreshControl.beginRefreshing()
+
+        if tableView.contentOffset.y <= 0 {
+            tableView.setContentOffset(CGPoint(x: 0, y: -refreshControl.frame.height), animated: true)
         }
     }
 

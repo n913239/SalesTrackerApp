@@ -45,7 +45,32 @@ extension UIRefreshControl {
     }
 }
 
+/// `UIRefreshControl.beginRefreshing()` has no effect while the view is not in a window, so the real
+/// control always reports `isRefreshing == false` in a test - a missing loading indicator would go
+/// unnoticed. This stands in for it and records the calls the production code makes.
+final class FakeRefreshControl: UIRefreshControl {
+    private var _isRefreshing = false
+
+    override var isRefreshing: Bool { _isRefreshing }
+    override func beginRefreshing() { _isRefreshing = true }
+    override func endRefreshing() { _isRefreshing = false }
+}
+
 extension UITableViewController {
+    @discardableResult
+    func replaceRefreshControlWithFake() -> FakeRefreshControl {
+        let fake = FakeRefreshControl()
+
+        refreshControl?.allTargets.forEach { target in
+            refreshControl?.actions(forTarget: target, forControlEvent: .valueChanged)?.forEach { action in
+                fake.addTarget(target, action: Selector(action), for: .valueChanged)
+            }
+        }
+
+        refreshControl = fake
+        return fake
+    }
+
     var numberOfRenderedRows: Int {
         tableView.numberOfSections == 0 ? 0 : tableView.numberOfRows(inSection: 0)
     }

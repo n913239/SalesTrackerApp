@@ -31,6 +31,21 @@ final class ProductListViewControllerTests: UILayerTestCase {
         XCTAssertEqual(loadCount, 2)
     }
 
+    /// A load the user did not start by pulling still has to show that the screen is working.
+    func test_showsTheRefreshIndicatorWhileLoading() async {
+        let summaries = LoadSignal<Result<[ProductSummary], Error>>()
+        let sut = makeSUT { await summaries.value() }
+        let refreshControl = sut.replaceRefreshControlWithFake()
+
+        sut.refresh()
+
+        XCTAssertTrue(refreshControl.isRefreshing, "Expected the spinner while the products are loading")
+
+        summaries.complete(with: .success([]))
+
+        await waitUntil { !refreshControl.isRefreshing }
+    }
+
     func test_rendersTheProductsAndTheirSalesCount() async {
         let summaries = [
             ProductSummary(product: makeProduct(name: "Bike"), salesCount: 3),

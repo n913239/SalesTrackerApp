@@ -8,6 +8,40 @@
 import XCTest
 import SalesTracker
 
+/// Holds a load open so a test can look at the screen while the request is still in flight.
+///
+/// The lock is not decoration: the load closures are nonisolated and async, so they run off the main
+/// actor while `complete(with:)` is called on it. Without it the waiting side can read a stale value,
+/// park a continuation nobody will ever resume, and hang the test.
+final class LoadSignal<T: Sendable>: @unchecked Sendable {
+    private let lock = NSLock()
+    private var continuation: CheckedContinuation<T, Never>?
+    private var result: T?
+
+    func value() async -> T {
+        await withCheckedContinuation { continuation in
+            lock.lock()
+            if let result {
+                lock.unlock()
+                continuation.resume(returning: result)
+            } else {
+                self.continuation = continuation
+                lock.unlock()
+            }
+        }
+    }
+
+    func complete(with value: T) {
+        lock.lock()
+        result = value
+        let continuation = self.continuation
+        self.continuation = nil
+        lock.unlock()
+
+        continuation?.resume(returning: value)
+    }
+}
+
 @MainActor
 class UILayerTestCase: XCTestCase {
 
