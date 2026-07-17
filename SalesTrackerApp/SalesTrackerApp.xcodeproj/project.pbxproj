@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		275BFD83300AEE1B00538309 /* SalesTracker.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 276F3B92300A86CE0061026B /* SalesTracker.framework */; platformFilter = ios; };
 		276F3B98300A86CE0061026B /* SalesTracker.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 276F3B92300A86CE0061026B /* SalesTracker.framework */; };
 		276F3B99300A86CE0061026B /* SalesTracker.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 276F3B92300A86CE0061026B /* SalesTracker.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		276F3D81300AA4650061026B /* CI_iOS.xctestplan in Resources */ = {isa = PBXBuildFile; fileRef = 276F3D80300AA4650061026B /* CI_iOS.xctestplan */; };
@@ -16,6 +17,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		275BFD85300AEE1B00538309 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 276F3B6D300A86B50061026B /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 276F3B91300A86CE0061026B;
+			remoteInfo = SalesTracker;
+		};
 		276F3B96300A86CE0061026B /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 276F3B6D300A86B50061026B /* Project object */;
@@ -75,6 +83,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		275BFD7C300AEE1100538309 /* SalesTrackerAPIEndToEndTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SalesTrackerAPIEndToEndTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		276F3B75300A86B50061026B /* SalesTrackerApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SalesTrackerApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		276F3B92300A86CE0061026B /* SalesTracker.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SalesTracker.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		276F3C33300A8C790061026B /* SalesTrackerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SalesTrackerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -94,6 +103,11 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		275BFD7D300AEE1100538309 /* SalesTrackerAPIEndToEndTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = SalesTrackerAPIEndToEndTests;
+			sourceTree = "<group>";
+		};
 		276F3B77300A86B50061026B /* SalesTrackerApp */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
@@ -125,6 +139,14 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		275BFD79300AEE1100538309 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				275BFD83300AEE1B00538309 /* SalesTracker.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		276F3B72300A86B50061026B /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -176,6 +198,7 @@
 				276F3C34300A8C790061026B /* SalesTrackerTests */,
 				276F3C3F300A8C8B0061026B /* SalesTrackerAppTests */,
 				276F3C4C300A8C950061026B /* SalesTrackeriOSTests */,
+				275BFD7D300AEE1100538309 /* SalesTrackerAPIEndToEndTests */,
 				276F3D8C300AADF50061026B /* Frameworks */,
 				276F3B76300A86B50061026B /* Products */,
 			);
@@ -189,6 +212,7 @@
 				276F3C33300A8C790061026B /* SalesTrackerTests.xctest */,
 				276F3C3E300A8C8A0061026B /* SalesTrackerAppTests.xctest */,
 				276F3C4B300A8C950061026B /* SalesTrackeriOSTests.xctest */,
+				275BFD7C300AEE1100538309 /* SalesTrackerAPIEndToEndTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -213,6 +237,29 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		275BFD7B300AEE1100538309 /* SalesTrackerAPIEndToEndTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 275BFD80300AEE1100538309 /* Build configuration list for PBXNativeTarget "SalesTrackerAPIEndToEndTests" */;
+			buildPhases = (
+				275BFD78300AEE1100538309 /* Sources */,
+				275BFD79300AEE1100538309 /* Frameworks */,
+				275BFD7A300AEE1100538309 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				275BFD86300AEE1B00538309 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				275BFD7D300AEE1100538309 /* SalesTrackerAPIEndToEndTests */,
+			);
+			name = SalesTrackerAPIEndToEndTests;
+			packageProductDependencies = (
+			);
+			productName = SalesTrackerAPIEndToEndTests;
+			productReference = 275BFD7C300AEE1100538309 /* SalesTrackerAPIEndToEndTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		276F3B74300A86B50061026B /* SalesTrackerApp */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 276F3B88300A86B60061026B /* Build configuration list for PBXNativeTarget "SalesTrackerApp" */;
@@ -341,6 +388,10 @@
 				LastSwiftUpdateCheck = 1640;
 				LastUpgradeCheck = 1640;
 				TargetAttributes = {
+					275BFD7B300AEE1100538309 = {
+						CreatedOnToolsVersion = 16.4;
+						LastSwiftMigration = 1640;
+					};
 					276F3B74300A86B50061026B = {
 						CreatedOnToolsVersion = 16.4;
 					};
@@ -382,11 +433,19 @@
 				276F3C32300A8C790061026B /* SalesTrackerTests */,
 				276F3C3D300A8C8A0061026B /* SalesTrackerAppTests */,
 				276F3C4A300A8C950061026B /* SalesTrackeriOSTests */,
+				275BFD7B300AEE1100538309 /* SalesTrackerAPIEndToEndTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		275BFD7A300AEE1100538309 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		276F3B73300A86B50061026B /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -426,6 +485,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		275BFD78300AEE1100538309 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		276F3B71300A86B50061026B /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -464,6 +530,12 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		275BFD86300AEE1B00538309 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			platformFilter = ios;
+			target = 276F3B91300A86CE0061026B /* SalesTracker */;
+			targetProxy = 275BFD85300AEE1B00538309 /* PBXContainerItemProxy */;
+		};
 		276F3B97300A86CE0061026B /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 276F3B91300A86CE0061026B /* SalesTracker */;
@@ -500,6 +572,39 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		275BFD81300AEE1100538309 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mike.SalesTrackerAPIEndToEndTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		275BFD82300AEE1100538309 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mike.SalesTrackerAPIEndToEndTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		276F3B89300A86B60061026B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -875,6 +980,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		275BFD80300AEE1100538309 /* Build configuration list for PBXNativeTarget "SalesTrackerAPIEndToEndTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				275BFD81300AEE1100538309 /* Debug */,
+				275BFD82300AEE1100538309 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		276F3B70300A86B50061026B /* Build configuration list for PBXProject "SalesTrackerApp" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
