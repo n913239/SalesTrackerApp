@@ -1,0 +1,39 @@
+name: CD
+
+on:
+  workflow_run:
+    workflows: [CI-iOS]
+    branches: [main]
+    types: [completed]
+  workflow_dispatch:
+
+jobs:
+  deliver:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: macos-15
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.ref }}
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
+
+      - name: Archive the iOS app
+        run: |
+          xcodebuild archive \
+            -project SalesTrackerApp/SalesTrackerApp.xcodeproj \
+            -scheme SalesTrackerApp \
+            -destination 'generic/platform=iOS' \
+            -archivePath build/SalesTrackerApp.xcarchive \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY=""
+
+      - name: Upload the iOS archive
+        uses: actions/upload-artifact@v7
+        with:
+          name: SalesTrackerApp-xcarchive
+          path: build/SalesTrackerApp.xcarchive
