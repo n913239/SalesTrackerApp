@@ -15,4 +15,5 @@ public enum HTTPClientError: Error, Equatable {
 
 public protocol HTTPClient: Sendable {
     func get(from url: URL, headers: [String: String]) async throws -> (Data, HTTPURLResponse)
+    func post(to url: URL, body: Data, headers: [String: String]) async throws -> (Data, HTTPURLResponse)
 }

@@ -98,6 +98,58 @@ final class URLSessionHTTPClientTests: XCTestCase {
         }
     }
 
+    func test_postToURL_sendsAPOSTRequestWithTheBodyAndTheGivenHeaders() async throws {
+        let observed = Mutex<URLRequest?>(nil)
+        URLProtocolStub.stub(data: anyData(), response: anyHTTPURLResponse(), error: nil) { request in
+            observed.withLock { $0 = request }
+        }
+        let body = Data(#"{"username":"tester"}"#.utf8)
+
+        _ = try await makeSUT().post(to: anyURL(), body: body, headers: ["Authorization": "Bearer a-token"])
+
+        let request = observed.withLock { $0 }
+        XCTAssertEqual(request?.httpMethod, "POST")
+        XCTAssertEqual(request?.url, anyURL())
+        XCTAssertEqual(bodyOf(request), body)
+        XCTAssertEqual(request?.value(forHTTPHeaderField: "Content-Type"), "application/json")
+        XCTAssertEqual(request?.value(forHTTPHeaderField: "Authorization"), "Bearer a-token")
+    }
+
+    func test_postToURL_succeedsOnHTTPURLResponseWithData() async throws {
+        let expectedData = anyData()
+        URLProtocolStub.stub(data: expectedData, response: anyHTTPURLResponse(), error: nil)
+
+        let (data, response) = try await makeSUT().post(to: anyURL(), body: Data(), headers: [:])
+
+        XCTAssertEqual(data, expectedData)
+        XCTAssertEqual(response.statusCode, 200)
+    }
+
+    func test_postToURL_failsOnRequestError() async {
+        URLProtocolStub.stub(data: nil, response: nil, error: anyNSError())
+        let sut = makeSUT()
+
+        do {
+            _ = try await sut.post(to: anyURL(), body: Data(), headers: [:])
+            XCTFail("Expected to throw")
+        } catch {}
+    }
+
+    func test_cancelPostToURLTask_cancelsURLRequest() async {
+        URLProtocolStub.stubHangingRequest()
+        let sut = makeSUT()
+
+        let task = Task { try await sut.post(to: anyURL(), body: Data(), headers: [:]) }
+        task.cancel()
+
+        do {
+            _ = try await task.value
+            XCTFail("Expected to throw")
+        } catch {
+            XCTAssertEqual((error as? URLError)?.code, .cancelled)
+        }
+    }
+
     // MARK: - Helpers
 
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> URLSessionHTTPClient {
@@ -106,6 +158,21 @@ final class URLSessionHTTPClientTests: XCTestCase {
         let sut = URLSessionHTTPClient(session: URLSession(configuration: configuration))
         trackForMemoryLeaks(sut, file: file, line: line)
         return sut
+    }
+
+    /// URLProtocol receives the body as a stream, not as `httpBody`.
+    private func bodyOf(_ request: URLRequest?) -> Data? {
+        guard let stream = request?.httpBodyStream else { return request?.httpBody }
+        stream.open()
+        defer { stream.close() }
+        var data = Data()
+        var buffer = [UInt8](repeating: 0, count: 1024)
+        while stream.hasBytesAvailable {
+            let read = stream.read(&buffer, maxLength: buffer.count)
+            if read <= 0 { break }
+            data.append(buffer, count: read)
+        }
+        return data
     }
 
     private func anyURL() -> URL { URL(string: "https://any-url.com")! }
