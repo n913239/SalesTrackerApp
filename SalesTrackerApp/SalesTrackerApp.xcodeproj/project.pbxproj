@@ -79,6 +79,7 @@
 		272AFFB5306A79AD0081EABB /* SalesTrackerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SalesTrackerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		272AFFC0306A79C80081EABB /* SalesTrackerAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SalesTrackerAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		272AFFCD306A79D40081EABB /* SalesTrackeriOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SalesTrackeriOSTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		27BF5326306A8C6D004036BA /* CI_iOS.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = CI_iOS.xctestplan; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -168,6 +169,7 @@
 		272AFF74306A780E0081EABB = {
 			isa = PBXGroup;
 			children = (
+				27BF5326306A8C6D004036BA /* CI_iOS.xctestplan */,
 				272AFF7F306A780E0081EABB /* SalesTrackerApp */,
 				272AFFA6306A794E0081EABB /* SalesTracker */,
 				272AFFB6306A79AD0081EABB /* SalesTrackerTests */,

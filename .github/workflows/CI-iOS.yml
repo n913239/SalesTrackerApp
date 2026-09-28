@@ -1,0 +1,40 @@
+name: CI-iOS
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: macos-15
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
+
+      - name: Prepare Simulator
+        run: xcrun simctl list devices available
+
+      - name: Build and Test iOS
+        run: |
+          xcodebuild clean build test \
+            -project SalesTrackerApp/SalesTrackerApp.xcodeproj \
+            -scheme "CI_iOS" \
+            -testPlan "CI_iOS" \
+            -destination "platform=iOS Simulator,name=iPhone 16,OS=18.5" \
+            -enableThreadSanitizer YES \
+            -enableCodeCoverage YES \
+            -resultBundlePath build/CI_iOS.xcresult
+
+      - name: Upload Result Bundle
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: CI_iOS-xcresult
+          path: build/CI_iOS.xcresult
+          if-no-files-found: ignore
