@@ -5,3 +5,8 @@
 "LOGIN_INVALID_CREDENTIALS" = "Invalid credentials.";
 "LOGIN_CONNECTION_FAILED" = "Failed to connect. Please try again.";
 "LOGIN_TOKEN_NOT_STORED" = "Signed in, but the session could not be saved on this device.";
+"PRODUCTS_TITLE" = "Products";
+"PRODUCT_SALES_COUNT_FORMAT" = "%d sales";
+"PRODUCT_SALES_COUNT_ONE" = "1 sale";
+"EMPTY_PRODUCTS_MESSAGE" = "No products yet.";
+"LOAD_FAILED_MESSAGE" = "Couldn't load the data. Pull to refresh to try again.";
