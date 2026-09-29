@@ -10,3 +10,7 @@
 "PRODUCT_SALES_COUNT_ONE" = "1 sale";
 "EMPTY_PRODUCTS_MESSAGE" = "No products yet.";
 "LOAD_FAILED_MESSAGE" = "Couldn't load the data. Pull to refresh to try again.";
+"PRODUCT_DETAIL_SUBTITLE_FORMAT" = "%@ from %@";
+"PRODUCT_DETAIL_UNCONVERTIBLE_FORMAT" = "%@ · %d without a USD rate";
+"USD_UNAVAILABLE" = "No USD rate";
+"EMPTY_SALES_MESSAGE" = "No sales for this product yet.";
