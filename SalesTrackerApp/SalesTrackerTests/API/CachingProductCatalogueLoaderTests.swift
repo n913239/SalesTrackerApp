@@ -84,6 +84,42 @@ final class CachingProductCatalogueLoaderTests: XCTestCase {
         XCTAssertEqual(callCount, 2, "A failure must not be cached")
     }
 
+    func test_invalidateOnAnEmptyCache_doesNothing() async {
+        let (sut, decoratee) = makeSUT()
+
+        await sut.invalidate()
+
+        let callCount = await decoratee.loadCallCount
+        XCTAssertEqual(callCount, 0)
+    }
+
+    func test_loadAfterInvalidate_loadsFromTheDecorateeAgain() async throws {
+        let (sut, decoratee) = makeSUT()
+        _ = try await sut.load()
+
+        await sut.invalidate()
+        _ = try await sut.load()
+
+        let callCount = await decoratee.loadCallCount
+        XCTAssertEqual(callCount, 2)
+    }
+
+    func test_aLoadThatFinishesAfterInvalidate_doesNotRefillTheCache() async throws {
+        let (sut, decoratee) = makeSUT()
+        await decoratee.hangTheNextLoad()
+
+        let hungLoad = Task { try await sut.load() }
+        await waitUntilTheDecorateeIsLoading(decoratee)
+        await sut.invalidate()
+        await decoratee.releaseTheHungLoad()
+        _ = try await hungLoad.value
+
+        _ = try await sut.load()
+
+        let callCount = await decoratee.loadCallCount
+        XCTAssertEqual(callCount, 2, "The reply that arrived after invalidate must not be cached")
+    }
+
     // MARK: - Helpers
 
     private func makeSUT() -> (CachingProductCatalogueLoader, LoaderSpy) {

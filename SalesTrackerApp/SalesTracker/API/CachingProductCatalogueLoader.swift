@@ -13,10 +13,13 @@ import Foundation
 /// - miss: the decoratee is asked, and the result is cached.
 /// - in flight: a second caller joins the load already running instead of starting another.
 /// - failure: nothing is cached, so the next caller retries.
-public actor CachingProductCatalogueLoader: ProductCatalogueLoader {
+/// - invalidate: the cache is emptied, and a load already running is disowned so its late reply
+///   cannot refill what the user just asked to be thrown away.
+public actor CachingProductCatalogueLoader: ProductCatalogueLoader, ProductCatalogueCache {
     private let decoratee: ProductCatalogueLoader
     private var cached: ProductCatalogue?
     private var loadInProgress: Task<ProductCatalogue, Error>?
+    private var generation = 0
 
     public init(decoratee: ProductCatalogueLoader) {
         self.decoratee = decoratee
@@ -28,16 +31,24 @@ public actor CachingProductCatalogueLoader: ProductCatalogueLoader {
 
         let decoratee = self.decoratee
         let task = Task { try await decoratee.load() }
+        let generationAtStart = generation
         loadInProgress = task
 
         do {
             let catalogue = try await task.value
+            guard generation == generationAtStart else { return catalogue }
             cached = catalogue
             loadInProgress = nil
             return catalogue
         } catch {
-            loadInProgress = nil
+            if generation == generationAtStart { loadInProgress = nil }
             throw error
         }
+    }
+
+    public func invalidate() {
+        cached = nil
+        loadInProgress = nil
+        generation += 1
     }
 }
