@@ -19,9 +19,11 @@ extension UIViewController {
     /// a device. The fake refresh control is swapped in first: `viewIsAppearing` is where the first
     /// load starts, and a `beginRefreshing()` landing on the real control would go unrecorded.
     func simulateAppearance() {
-        if !isViewLoaded {
-            loadViewIfNeeded()
-            (self as? UITableViewController)?.replaceRefreshControlWithFake()
+        loadViewIfNeeded()
+
+        if let tableController = self as? UITableViewController,
+           !(tableController.refreshControl is FakeRefreshControl) {
+            tableController.replaceRefreshControlWithFake()
         }
 
         beginAppearanceTransition(true, animated: false)
