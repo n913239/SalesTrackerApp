@@ -86,7 +86,7 @@ final class RemoteLoaderTests: XCTestCase {
 
 private func anyNSError() -> NSError { NSError(domain: "any error", code: 0) }
 
-actor HTTPClientSpy: HTTPClient {
+private actor HTTPClientSpy: HTTPClient {
     private(set) var requestedURLs: [URL] = []
     private(set) var sentHeaders: [[String: String]] = []
     private var error: Error?
