@@ -1,0 +1,7 @@
+"LOGIN_TITLE" = "Sign in";
+"LOGIN_USERNAME_PLACEHOLDER" = "Username";
+"LOGIN_PASSWORD_PLACEHOLDER" = "Password";
+"LOGIN_BUTTON_TITLE" = "Sign in";
+"LOGIN_INVALID_CREDENTIALS" = "Invalid credentials.";
+"LOGIN_CONNECTION_FAILED" = "Failed to connect. Please try again.";
+"LOGIN_TOKEN_NOT_STORED" = "Signed in, but the session could not be saved on this device.";
