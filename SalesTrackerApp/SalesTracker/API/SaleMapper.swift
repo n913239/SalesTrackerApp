@@ -17,7 +17,7 @@ public enum SaleMapper {
 
     public enum Error: Swift.Error { case invalidData }
 
-    public static func map(_ data: Data, from response: HTTPURLResponse) throws -> [Sale] {
+    @Sendable public static func map(_ data: Data, from response: HTTPURLResponse) throws -> [Sale] {
         guard response.statusCode == 200,
               let items = try? JSONDecoder().decode([RemoteSale].self, from: data) else {
             throw Error.invalidData

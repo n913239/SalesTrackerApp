@@ -19,7 +19,7 @@ public enum LoginMapper {
         case invalidData
     }
 
-    public static func map(_ data: Data, from response: HTTPURLResponse) throws -> String {
+    @Sendable public static func map(_ data: Data, from response: HTTPURLResponse) throws -> String {
         if response.statusCode == 401 {
             let message = (try? JSONDecoder().decode(ErrorResponse.self, from: data))?.message
             throw Error.invalidCredentials(message: message)

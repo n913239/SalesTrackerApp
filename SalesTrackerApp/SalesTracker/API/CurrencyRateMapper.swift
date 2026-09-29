@@ -16,7 +16,7 @@ public enum CurrencyRateMapper {
 
     public enum Error: Swift.Error { case invalidData }
 
-    public static func map(_ data: Data, from response: HTTPURLResponse) throws -> [CurrencyRate] {
+    @Sendable public static func map(_ data: Data, from response: HTTPURLResponse) throws -> [CurrencyRate] {
         guard response.statusCode == 200,
               let items = try? JSONDecoder().decode([RemoteRate].self, from: data) else {
             throw Error.invalidData
