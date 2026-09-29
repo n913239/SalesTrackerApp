@@ -30,6 +30,24 @@ final class SalesFormatterTests: XCTestCase {
         XCTAssertEqual(sut.usd(decimal("323.28")), "$323.28")
     }
 
+    func test_date_showsTheMinutes() {
+        let sut = SalesFormatter(timeZone: TimeZone(identifier: "UTC")!)
+
+        XCTAssertEqual(sut.date(Date(timeIntervalSince1970: 1_721_490_327)), "Jul 20, 2024 at 3:45 PM")
+    }
+
+    func test_date_usesTheInjectedTimeZone() {
+        let sut = SalesFormatter(timeZone: TimeZone(identifier: "Asia/Taipei")!)
+
+        XCTAssertEqual(sut.date(Date(timeIntervalSince1970: 1_721_490_327)), "Jul 20, 2024 at 11:45 PM")
+    }
+
+    func test_init_defaultsToTheCurrentTimeZone() {
+        let date = Date(timeIntervalSince1970: 1_721_490_327)
+
+        XCTAssertEqual(SalesFormatter().date(date), SalesFormatter(timeZone: .current).date(date))
+    }
+
     // MARK: - Helpers
 
     private func decimal(_ string: String) -> Decimal {
