@@ -14,3 +14,6 @@
 "PRODUCT_DETAIL_UNCONVERTIBLE_FORMAT" = "%@ · %d without a USD rate";
 "USD_UNAVAILABLE" = "No USD rate";
 "EMPTY_SALES_MESSAGE" = "No sales for this product yet.";
+"USD_PENDING" = "Converting…";
+"PRODUCT_DETAIL_SUBTITLE_WITHOUT_RATES_FORMAT" = "%@ · Converting to USD…";
+"PRODUCT_DETAIL_SUBTITLE_RATES_FAILED_FORMAT" = "%@ · No USD rates";

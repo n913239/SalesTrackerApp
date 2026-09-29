@@ -20,7 +20,7 @@ final class ProductDetailPresenterTests: XCTestCase {
     func test_didFinishLoading_withLoadedRates_showsEachSaleInItsOwnCurrencyAndInUSD() {
         let (sut, view) = makeSUT()
 
-        sut.didFinishLoading(with: [sale(amount: "100.00", currency: "EUR")], rates: [rate("EUR", "1.18")])
+        sut.didFinishLoading(with: [sale(amount: "100.00", currency: "EUR")], rates: .loaded([rate("EUR", "1.18")]))
 
         XCTAssertEqual(view.renderedSales, [
             SaleViewModel(amount: "€100.00", date: "Jan 2, 2030 at 11:00 AM", amountInUSD: "$118.00", isConverted: true)
@@ -32,7 +32,7 @@ final class ProductDetailPresenterTests: XCTestCase {
 
         sut.didFinishLoading(
             with: [sale(amount: "100.00", currency: "EUR"), sale(amount: "50.00", currency: "USD")],
-            rates: [rate("EUR", "1.18")]
+            rates: .loaded([rate("EUR", "1.18")])
         )
 
         XCTAssertEqual(view.renderedSubtitle, String(
@@ -47,7 +47,7 @@ final class ProductDetailPresenterTests: XCTestCase {
 
         sut.didFinishLoading(
             with: [sale(amount: "100.00", currency: "EUR"), sale(amount: "126944.29", currency: "JPY")],
-            rates: [rate("EUR", "1.18")]
+            rates: .loaded([rate("EUR", "1.18")])
         )
 
         XCTAssertEqual(view.renderedSales.map(\.amountInUSD), ["$118.00", localized("USD_UNAVAILABLE")])
@@ -66,7 +66,7 @@ final class ProductDetailPresenterTests: XCTestCase {
     func test_didFinishLoadingWithNoSales_displaysTheEmptyMessage() {
         let (sut, view) = makeSUT()
 
-        sut.didFinishLoading(with: [], rates: [])
+        sut.didFinishLoading(with: [], rates: .loaded([]))
 
         XCTAssertEqual(view.renderedSales, [])
         XCTAssertEqual(view.renderedEmptyMessage, localized("EMPTY_SALES_MESSAGE"))
@@ -74,7 +74,7 @@ final class ProductDetailPresenterTests: XCTestCase {
 
     func test_didFinishLoadingWithError_showsTheMessageStopsLoadingAndLeavesTheRowsAlone() {
         let (sut, view) = makeSUT()
-        sut.didFinishLoading(with: [sale(amount: "100.00", currency: "EUR")], rates: [rate("EUR", "1.18")])
+        sut.didFinishLoading(with: [sale(amount: "100.00", currency: "EUR")], rates: .loaded([rate("EUR", "1.18")]))
         view.clearMessages()
 
         sut.didFinishLoading(with: anyNSError())
@@ -83,6 +83,44 @@ final class ProductDetailPresenterTests: XCTestCase {
             .errorMessage(localized("LOAD_FAILED_MESSAGE")),
             .loading(false)
         ], "A failed refresh must not touch the rows already on screen")
+    }
+
+    func test_didFinishLoading_withPendingRates_saysEachRowIsStillConverting() {
+        let (sut, view) = makeSUT()
+
+        sut.didFinishLoading(with: [sale(amount: "100.00", currency: "EUR")], rates: .pending)
+
+        XCTAssertEqual(view.renderedSales.map(\.amountInUSD), [localized("USD_PENDING")])
+        XCTAssertEqual(view.renderedSales.map(\.isConverted), [false])
+    }
+
+    func test_didFinishLoading_withPendingRates_reportsTheCountAlone() {
+        let (sut, view) = makeSUT()
+
+        sut.didFinishLoading(
+            with: [sale(amount: "100.00", currency: "EUR"), sale(amount: "50.00", currency: "USD")],
+            rates: .pending
+        )
+
+        XCTAssertEqual(view.renderedSubtitle, String(
+            format: localized("PRODUCT_DETAIL_SUBTITLE_WITHOUT_RATES_FORMAT"),
+            String(format: localized("PRODUCT_SALES_COUNT_FORMAT"), 2)
+        ))
+    }
+
+    func test_didFinishLoading_withFailedRates_keepsTheCountInTheSubtitle() {
+        let (sut, view) = makeSUT()
+
+        sut.didFinishLoading(
+            with: [sale(amount: "100.00", currency: "EUR"), sale(amount: "50.00", currency: "USD")],
+            rates: .failed
+        )
+
+        XCTAssertEqual(view.renderedSales.map(\.amountInUSD), [localized("USD_UNAVAILABLE"), localized("USD_UNAVAILABLE")])
+        XCTAssertEqual(view.renderedSubtitle, String(
+            format: localized("PRODUCT_DETAIL_SUBTITLE_RATES_FAILED_FORMAT"),
+            String(format: localized("PRODUCT_SALES_COUNT_FORMAT"), 2)
+        ))
     }
 
     // MARK: - Helpers

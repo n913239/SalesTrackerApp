@@ -33,6 +33,15 @@ public struct ProductDetailViewModel: Equatable, Sendable {
     }
 }
 
+/// The rates are a third state, not a missing array: "not here yet" and "not coming" read
+/// differently to a person, and flattening them into `[]` is what made a failed rates request look
+/// like a product with no sales.
+public enum CurrencyRatesOutcome: Equatable, Sendable {
+    case pending
+    case loaded([CurrencyRate])
+    case failed
+}
+
 @MainActor
 public protocol ProductDetailView {
     func display(_ viewModel: ProductDetailViewModel)
@@ -65,12 +74,10 @@ public final class ProductDetailPresenter {
         errorView.display(.noError)
     }
 
-    public func didFinishLoading(with sales: [Sale], rates: [CurrencyRate]) {
-        let converter = CurrencyConverter(rates: rates)
-
+    public func didFinishLoading(with sales: [Sale], rates: CurrencyRatesOutcome) {
         detailView.display(ProductDetailViewModel(
-            subtitle: subtitle(for: sales, converter: converter),
-            sales: sales.map { row(for: $0, converter: converter) },
+            subtitle: subtitle(for: sales, rates: rates),
+            sales: sales.map { row(for: $0, rates: rates) },
             emptyMessage: sales.isEmpty ? SalesTrackerStrings.localized("EMPTY_SALES_MESSAGE") : nil
         ))
         loadingView.display(ResourceLoadingViewModel(isLoading: false))
@@ -85,32 +92,67 @@ public final class ProductDetailPresenter {
 
     // MARK: - Helpers
 
-    private func row(for sale: Sale, converter: CurrencyConverter) -> SaleViewModel {
-        let converted = converter.amountInUSD(sale.amount, currency: sale.currencyCode)
+    private func row(for sale: Sale, rates: CurrencyRatesOutcome) -> SaleViewModel {
+        let amount = formatter.amount(sale.amount, currency: sale.currencyCode)
+        let date = formatter.date(sale.date)
 
-        return SaleViewModel(
-            amount: formatter.amount(sale.amount, currency: sale.currencyCode),
-            date: formatter.date(sale.date),
-            amountInUSD: converted.map(formatter.usd) ?? SalesTrackerStrings.localized("USD_UNAVAILABLE"),
-            isConverted: converted != nil
-        )
+        switch rates {
+        case .pending:
+            return SaleViewModel(
+                amount: amount,
+                date: date,
+                amountInUSD: SalesTrackerStrings.localized("USD_PENDING"),
+                isConverted: false
+            )
+
+        case .failed:
+            return SaleViewModel(
+                amount: amount,
+                date: date,
+                amountInUSD: SalesTrackerStrings.localized("USD_UNAVAILABLE"),
+                isConverted: false
+            )
+
+        case let .loaded(rates):
+            let converted = CurrencyConverter(rates: rates).amountInUSD(sale.amount, currency: sale.currencyCode)
+            return SaleViewModel(
+                amount: amount,
+                date: date,
+                amountInUSD: converted.map(formatter.usd) ?? SalesTrackerStrings.localized("USD_UNAVAILABLE"),
+                isConverted: converted != nil
+            )
+        }
     }
 
-    private func subtitle(for sales: [Sale], converter: CurrencyConverter) -> String {
-        let total = converter.totalInUSD(sales.map { (amount: $0.amount, currency: $0.currencyCode) })
+    private func subtitle(for sales: [Sale], rates: CurrencyRatesOutcome) -> String {
+        let count = SalesTrackerStrings.salesCount(sales.count)
 
-        let converted = String(
-            format: SalesTrackerStrings.localized("PRODUCT_DETAIL_SUBTITLE_FORMAT"),
-            formatter.usd(total.amount),
-            SalesTrackerStrings.salesCount(sales.count)
-        )
+        switch rates {
+        case .pending:
+            return String(format: SalesTrackerStrings.localized("PRODUCT_DETAIL_SUBTITLE_WITHOUT_RATES_FORMAT"), count)
 
-        guard total.unconvertibleCount > 0 else { return converted }
+        // The count survives the failure: the sales were loaded, and hiding how many there are
+        // because a second, unrelated request failed is what made the screen look empty.
+        case .failed:
+            return String(format: SalesTrackerStrings.localized("PRODUCT_DETAIL_SUBTITLE_RATES_FAILED_FORMAT"), count)
 
-        return String(
-            format: SalesTrackerStrings.localized("PRODUCT_DETAIL_UNCONVERTIBLE_FORMAT"),
-            converted,
-            total.unconvertibleCount
-        )
+        case let .loaded(rates):
+            let total = CurrencyConverter(rates: rates)
+                .totalInUSD(sales.map { (amount: $0.amount, currency: $0.currencyCode) })
+
+            let converted = String(
+                format: SalesTrackerStrings.localized("PRODUCT_DETAIL_SUBTITLE_FORMAT"),
+                formatter.usd(total.amount),
+                count
+            )
+
+            guard total.unconvertibleCount > 0 else { return converted }
+
+            return String(
+                format: SalesTrackerStrings.localized("PRODUCT_DETAIL_UNCONVERTIBLE_FORMAT"),
+                converted,
+                total.unconvertibleCount
+            )
+        }
     }
 }
