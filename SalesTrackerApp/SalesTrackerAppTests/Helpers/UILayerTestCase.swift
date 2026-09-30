@@ -371,3 +371,106 @@ final class ListViewSpy: ProductListView, ResourceLoadingView, ResourceErrorView
 func makeCatalogue(productNames: [String]) -> ProductCatalogue {
     ProductCatalogue(products: productNames.map { makeProduct(named: $0) }, sales: [])
 }
+
+/// Reads a value from the framework's own strings table, the same way the presenters do.
+func localized(_ key: String, table: String = "SalesTracker") -> String {
+    Bundle(for: LoginPresenter.self).localizedString(forKey: key, value: nil, table: table)
+}
+
+actor RatesLoaderStub: CurrencyRatesLoader {
+    nonisolated let cancellations = CancellationSpy()
+
+    private var result: Result<[CurrencyRate], Error> = .success([])
+    private var hangs = false
+    private var pending: [UUID: CheckedContinuation<Void, Error>] = [:]
+    private var cancelledBeforeStored: Set<UUID> = []
+
+    func completeWith(_ result: Result<[CurrencyRate], Error>) {
+        self.result = result
+    }
+
+    var isHoldingALoad: Bool { !pending.isEmpty }
+
+    func hangLoads() { hangs = true }
+
+    func releaseLoads() {
+        hangs = false
+        let waiting = pending
+        pending.removeAll()
+        waiting.values.forEach { $0.resume() }
+    }
+
+    func cancelPendingRequests() {
+        let waiting = pending
+        pending.removeAll()
+        waiting.values.forEach { $0.resume(throwing: CancellationError()) }
+    }
+
+    func load() async throws -> [CurrencyRate] {
+        if hangs {
+            let id = UUID()
+            try await withTaskCancellationHandler {
+                try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+                    if cancelledBeforeStored.remove(id) != nil {
+                        continuation.resume(throwing: CancellationError())
+                    } else {
+                        pending[id] = continuation
+                    }
+                }
+            } onCancel: {
+                cancellations.record()
+                Task { await self.cancel(id) }
+            }
+        }
+
+        return try result.get()
+    }
+
+    private func cancel(_ id: UUID) {
+        if let continuation = pending.removeValue(forKey: id) {
+            continuation.resume(throwing: CancellationError())
+        } else {
+            cancelledBeforeStored.insert(id)
+        }
+    }
+}
+
+@MainActor
+final class DetailViewSpy: ProductDetailView, ResourceLoadingView, ResourceErrorView {
+    enum Message: Equatable {
+        case loading(Bool)
+        case errorMessage(String?)
+        case detail(subtitle: String, usdColumn: [String])
+    }
+
+    private(set) var messages: [Message] = []
+
+    var details: [Message] {
+        messages.filter { if case .detail = $0 { true } else { false } }
+    }
+
+    var lastUSDColumn: [String] {
+        for message in messages.reversed() {
+            if case let .detail(_, usdColumn) = message { return usdColumn }
+        }
+        return []
+    }
+
+    var lastSubtitle: String? {
+        for message in messages.reversed() {
+            if case let .detail(subtitle, _) = message { return subtitle }
+        }
+        return nil
+    }
+
+    var loadingSequence: [Bool] {
+        messages.compactMap { if case let .loading(isLoading) = $0 { isLoading } else { nil } }
+    }
+
+    func display(_ viewModel: ProductDetailViewModel) {
+        messages.append(.detail(subtitle: viewModel.subtitle, usdColumn: viewModel.sales.map(\.amountInUSD)))
+    }
+
+    func display(_ viewModel: ResourceLoadingViewModel) { messages.append(.loading(viewModel.isLoading)) }
+    func display(_ viewModel: ResourceErrorViewModel) { messages.append(.errorMessage(viewModel.message)) }
+}
