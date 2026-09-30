@@ -252,3 +252,122 @@ final class LoginViewSpy: ResourceLoadingView, ResourceErrorView {
 func tokenJSON(_ token: String) -> Data {
     try! JSONSerialization.data(withJSONObject: ["access_token": token])
 }
+
+/// Records what happened in the order it happened, from whichever isolation domain it happened in.
+final class EventLog: Sendable {
+    private let events = Mutex<[String]>([])
+
+    var all: [String] { events.withLock { $0 } }
+
+    func record(_ event: String) { events.withLock { $0.append(event) } }
+}
+
+actor CatalogueLoaderStub: ProductCatalogueLoader {
+    nonisolated let cancellations = CancellationSpy()
+    nonisolated let log: EventLog
+
+    private var result: Result<ProductCatalogue, Error> = .success(ProductCatalogue(products: [], sales: []))
+    private var hangs = false
+    private var pending: [UUID: CheckedContinuation<Void, Error>] = [:]
+    private var cancelledBeforeStored: Set<UUID> = []
+    private(set) var loadCallCount = 0
+
+    init(log: EventLog = EventLog()) {
+        self.log = log
+    }
+
+    func completeWith(_ result: Result<ProductCatalogue, Error>) {
+        self.result = result
+    }
+
+    var isHoldingALoad: Bool { !pending.isEmpty }
+
+    func hangLoads() { hangs = true }
+
+    func releaseLoads() {
+        hangs = false
+        let waiting = pending
+        pending.removeAll()
+        waiting.values.forEach { $0.resume() }
+    }
+
+    func cancelPendingRequests() {
+        let waiting = pending
+        pending.removeAll()
+        waiting.values.forEach { $0.resume(throwing: CancellationError()) }
+    }
+
+    func load() async throws -> ProductCatalogue {
+        loadCallCount += 1
+        log.record("load")
+
+        if hangs {
+            let id = UUID()
+            try await withTaskCancellationHandler {
+                try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+                    if cancelledBeforeStored.remove(id) != nil {
+                        continuation.resume(throwing: CancellationError())
+                    } else {
+                        pending[id] = continuation
+                    }
+                }
+            } onCancel: {
+                cancellations.record()
+                Task { await self.cancel(id) }
+            }
+        }
+
+        return try result.get()
+    }
+
+    private func cancel(_ id: UUID) {
+        if let continuation = pending.removeValue(forKey: id) {
+            continuation.resume(throwing: CancellationError())
+        } else {
+            cancelledBeforeStored.insert(id)
+        }
+    }
+}
+
+final class CacheSpy: ProductCatalogueCache {
+    private let invalidations = Mutex(0)
+    private let log: EventLog
+
+    init(log: EventLog = EventLog()) {
+        self.log = log
+    }
+
+    var invalidateCount: Int { invalidations.withLock { $0 } }
+
+    func invalidate() async {
+        invalidations.withLock { $0 += 1 }
+        log.record("invalidate")
+    }
+}
+
+@MainActor
+final class ListViewSpy: ProductListView, ResourceLoadingView, ResourceErrorView {
+    enum Message: Equatable {
+        case loading(Bool)
+        case errorMessage(String?)
+        case list([String])
+    }
+
+    private(set) var messages: [Message] = []
+
+    var renderedRows: [String] {
+        messages.compactMap { if case let .list(rows) = $0 { rows } else { nil } }.last ?? []
+    }
+
+    var loadingSequence: [Bool] {
+        messages.compactMap { if case let .loading(isLoading) = $0 { isLoading } else { nil } }
+    }
+
+    func display(_ viewModel: ProductListViewModel) { messages.append(.list(viewModel.products.map(\.name))) }
+    func display(_ viewModel: ResourceLoadingViewModel) { messages.append(.loading(viewModel.isLoading)) }
+    func display(_ viewModel: ResourceErrorViewModel) { messages.append(.errorMessage(viewModel.message)) }
+}
+
+func makeCatalogue(productNames: [String]) -> ProductCatalogue {
+    ProductCatalogue(products: productNames.map { makeProduct(named: $0) }, sales: [])
+}
