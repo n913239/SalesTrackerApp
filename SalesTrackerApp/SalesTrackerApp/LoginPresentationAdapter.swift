@@ -9,8 +9,8 @@ import Foundation
 import SalesTracker
 
 /// Owns the one Task a login needs. The view controller reports a tap, the presenter decides what
-/// the screen says, and the work in between lives here - the only place in the app target allowed
-/// to start anything.
+/// the screen says, and the work in between lives here: adapters are the only place in the app
+/// target allowed to start anything.
 @MainActor
 final class LoginPresentationAdapter {
     var presenter: LoginPresenter?

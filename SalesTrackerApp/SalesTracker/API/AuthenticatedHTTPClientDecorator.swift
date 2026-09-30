@@ -9,7 +9,7 @@ import Foundation
 
 /// Attaches the access token to every request and reports a 401 once, centrally.
 ///
-/// The token expires after two minutes, so an expiry can surface on any screen and on any request.
+/// The token can expire at any time, so a 401 can surface on any screen and on any request.
 /// Checking for it at a single call site would leave every other screen showing stale or empty data
 /// with no explanation.
 public final class AuthenticatedHTTPClientDecorator: HTTPClient {

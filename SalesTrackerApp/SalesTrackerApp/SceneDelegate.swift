@@ -53,8 +53,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
 
     func configureWindow() {
-        // A stored token means the session survived the last launch, so the list is shown straight
-        // away. An expired one is caught by the first request, which sends the user back here.
+        // Expiry is not checked here: the first request made with an expired token locks the app.
         if tokenStore.retrieve() != nil {
             showProductList()
         } else {
@@ -102,8 +101,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window?.rootViewController = navigationController
     }
 
-    /// A 401 can come back from any request on any screen, and the token only lives for two
-    /// minutes. Handling it here - once - is what makes "lock the app and show the login screen
+    /// A 401 can come back from any request on any screen, because the token can expire at any
+    /// time. Handling it here - once - is what makes "lock the app and show the login screen
     /// again" true everywhere, rather than only on the screen that happened to check.
     private func lockApp() {
         // Two requests can come back unauthorized at the same time; the second one finds the

@@ -12,7 +12,7 @@ public protocol ProductCatalogueLoader: Sendable {
     func load() async throws -> ProductCatalogue
 }
 
-/// Separated from loading (CQS): a pull to refresh throws the cached catalogue away, and the
+/// Separated from loading (CQS): a pull to refresh invalidates the cached catalogue, and the
 /// next `load()` decides on its own what to do about that.
 public protocol ProductCatalogueCache: Sendable {
     func invalidate() async

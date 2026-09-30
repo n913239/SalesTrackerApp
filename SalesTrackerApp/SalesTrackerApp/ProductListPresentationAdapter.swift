@@ -8,7 +8,7 @@
 import Foundation
 import SalesTracker
 
-/// Owns the load the list needs. A pull throws the cached catalogue away first, so a refresh
+/// Owns the load the list needs. A pull invalidates the cached catalogue first, so a refresh
 /// really does reach the server rather than redrawing what is already on screen.
 @MainActor
 final class ProductListPresentationAdapter {
@@ -32,8 +32,6 @@ final class ProductListPresentationAdapter {
 
         presenter?.didStartLoading()
 
-        // Taken into locals so the task never reaches back through `self`: holding the adapter
-        // for the length of the request is exactly what stops the screen being released.
         let catalogueLoader = self.catalogueLoader
         let catalogueCache = self.catalogueCache
 

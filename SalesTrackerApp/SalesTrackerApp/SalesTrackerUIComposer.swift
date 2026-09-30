@@ -25,9 +25,6 @@ enum SalesTrackerUIComposer {
             errorView: WeakRefVirtualProxy(viewController)
         )
 
-        // The closure holds the adapter, the adapter holds the presenter, and the presenter
-        // points back through a weak proxy - so nothing here outlives the screen, and nothing
-        // here dies before it either.
         viewController.onLogin = { username, password in
             adapter.login(username: username, password: password)
         }

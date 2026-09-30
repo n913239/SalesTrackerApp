@@ -8,8 +8,8 @@
 import Foundation
 
 /// The locale is injected rather than read from the device, so the same sale reads the same way in
-/// a test, on CI and in a screenshot. Fraction digits are pinned to two: left to the default, a
-/// sale of 999.99 rounds to 1,000 and the cents disappear.
+/// a test, on CI and in a screenshot. Fraction digits are pinned to two: left to the currency's
+/// default, a JPY sale of 126,944.29 would lose its .29.
 ///
 /// The time zone defaults to the device's: a sale made at 3:45 PM local time is what the person
 /// holding the phone remembers, not the same instant rewritten in UTC. Tests and screenshots pin

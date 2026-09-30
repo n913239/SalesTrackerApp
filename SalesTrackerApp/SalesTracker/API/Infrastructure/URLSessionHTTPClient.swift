@@ -10,7 +10,6 @@ import Foundation
 public final class URLSessionHTTPClient: HTTPClient {
     private let session: URLSession
 
-    /// Internal: clients only ever catch it, so there is nothing for them to construct or match.
     struct UnexpectedValuesRepresentation: Error {}
 
     public init(session: URLSession) {

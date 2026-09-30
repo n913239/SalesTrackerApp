@@ -41,7 +41,6 @@ public final class LoginPresenter {
     private func message(for error: LoginService.Error) -> String {
         switch error {
         case let .invalidCredentials(message):
-            // The server knows why it said no; only when it does not say do we choose the words.
             message ?? SalesTrackerStrings.localized("LOGIN_INVALID_CREDENTIALS")
         case .connectivity:
             SalesTrackerStrings.localized("LOGIN_CONNECTION_FAILED")

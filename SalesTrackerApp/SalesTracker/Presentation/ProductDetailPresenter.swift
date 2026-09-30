@@ -33,9 +33,8 @@ public struct ProductDetailViewModel: Equatable, Sendable {
     }
 }
 
-/// The rates are a third state, not a missing array: "not here yet" and "not coming" read
-/// differently to a person, and flattening them into `[]` is what made a failed rates request look
-/// like a product with no sales.
+/// "Not here yet" and "not coming" read differently to a person, and neither is a product with no
+/// sales, so the rates arrive as an outcome of their own rather than as an empty array.
 public enum CurrencyRatesOutcome: Equatable, Sendable {
     case pending
     case loaded([CurrencyRate])
@@ -131,8 +130,6 @@ public final class ProductDetailPresenter {
         case .pending:
             return String(format: SalesTrackerStrings.localized("PRODUCT_DETAIL_SUBTITLE_WITHOUT_RATES_FORMAT"), count)
 
-        // The count survives the failure: the sales were loaded, and hiding how many there are
-        // because a second, unrelated request failed is what made the screen look empty.
         case .failed:
             return String(format: SalesTrackerStrings.localized("PRODUCT_DETAIL_SUBTITLE_RATES_FAILED_FORMAT"), count)
 
