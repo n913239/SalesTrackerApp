@@ -27,7 +27,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     private lazy var authenticatedClient: HTTPClient = AuthenticatedHTTPClientDecorator(
         decoratee: httpClient,
         tokenStore: tokenStore,
-        onUnauthorized: {}
+        onUnauthorized: { [weak self] in self?.lockApp() }
     )
 
     private var navigationController: UINavigationController?
@@ -100,6 +100,20 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let navigationController = UINavigationController(rootViewController: list)
         self.navigationController = navigationController
         window?.rootViewController = navigationController
+    }
+
+    /// A 401 can come back from any request on any screen, and the token only lives for two
+    /// minutes. Handling it here - once - is what makes "lock the app and show the login screen
+    /// again" true everywhere, rather than only on the screen that happened to check.
+    private func lockApp() {
+        // Two requests can come back unauthorized at the same time; the second one finds the
+        // token already gone and leaves the login screen the first one built alone.
+        guard tokenStore.retrieve() != nil else { return }
+
+        // The session is over either way: a token that cannot be deleted must not keep the user
+        // looking at a screen whose data will never refresh.
+        try? tokenStore.delete()
+        showLogin()
     }
 
     private func showProductDetail(for product: Product) {
