@@ -11,7 +11,8 @@ import Foundation
 ///
 /// - hit: a cached catalogue is returned without touching the network.
 /// - miss: the decoratee is asked, and the result is cached.
-/// - in flight: a second caller joins the load already running instead of starting another.
+/// - in flight: a second caller joins the load already running instead of starting another. If a
+///   refresh it joined fails, it gets the catalogue that refresh was replacing, not the error.
 /// - failure: nothing new is cached, so the next caller retries. A refresh that fails puts back the
 ///   catalogue it was replacing: the rows are still on screen, so they must still open.
 /// - invalidate: the cached catalogue is set aside until a refresh brings a new one, and a load
@@ -29,7 +30,14 @@ public actor CachingProductCatalogueLoader: ProductCatalogueLoader, ProductCatal
 
     public func load() async throws -> ProductCatalogue {
         if let cached { return cached }
-        if let loadInProgress { return try await loadInProgress.value }
+        if let loadInProgress {
+            do {
+                return try await loadInProgress.value
+            } catch {
+                guard let fallback = cached ?? replaced else { throw error }
+                return fallback
+            }
+        }
 
         let decoratee = self.decoratee
         let task = Task { try await decoratee.load() }

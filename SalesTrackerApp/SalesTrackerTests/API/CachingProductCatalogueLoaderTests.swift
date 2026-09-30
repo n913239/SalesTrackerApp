@@ -140,6 +140,29 @@ final class CachingProductCatalogueLoaderTests: XCTestCase {
         XCTAssertEqual(callCount, 2, "The rows still on screen must open from the cache, not from the network that just failed")
     }
 
+    func test_aCallerThatJoinsARefreshThatFails_stillGetsTheCatalogueItWasReplacing() async throws {
+        let (sut, decoratee) = makeSUT()
+        let catalogue = makeCatalogue(productNamed: "iPhone")
+        await decoratee.completeWith(.success(catalogue))
+        _ = try await sut.load()
+
+        await sut.invalidate()
+        await decoratee.completeWith(.failure(anyNSError()))
+        await decoratee.hangTheNextLoad()
+        let refresh = Task { try await sut.load() }
+        await waitUntilTheDecorateeIsLoading(decoratee)
+
+        let joined = try await sut.joinTheLoadInProgress(thenRelease: decoratee)
+
+        XCTAssertEqual(joined.summaries(), catalogue.summaries())
+        do {
+            _ = try await refresh.value
+            XCTFail("Expected the refresh to report its failure to the caller that started it")
+        } catch {}
+        let callCount = await decoratee.loadCallCount
+        XCTAssertEqual(callCount, 2, "The caller that joined must not start a load of its own")
+    }
+
     // MARK: - Helpers
 
     private func makeSUT() -> (CachingProductCatalogueLoader, LoaderSpy) {
@@ -163,6 +186,18 @@ final class CachingProductCatalogueLoaderTests: XCTestCase {
             await Task.yield()
         }
         XCTFail("Timed out waiting for the decoratee to start loading", file: file, line: line)
+    }
+}
+
+private extension CachingProductCatalogueLoader {
+    func joinTheLoadInProgress(thenRelease decoratee: LoaderSpy) async throws -> ProductCatalogue {
+        // The release needs this actor, so it cannot run until load() has joined and suspended.
+        Task { await self.release(decoratee) }
+        return try await load()
+    }
+
+    func release(_ decoratee: LoaderSpy) async {
+        await decoratee.releaseTheHungLoad()
     }
 }
 
