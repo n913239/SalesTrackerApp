@@ -12,12 +12,14 @@ import Foundation
 /// - hit: a cached catalogue is returned without touching the network.
 /// - miss: the decoratee is asked, and the result is cached.
 /// - in flight: a second caller joins the load already running instead of starting another.
-/// - failure: nothing is cached, so the next caller retries.
-/// - invalidate: the cache is emptied, and a load already running is disowned so its late reply
-///   cannot refill what the user just asked to be thrown away.
+/// - failure: nothing new is cached, so the next caller retries. A refresh that fails puts back the
+///   catalogue it was replacing: the rows are still on screen, so they must still open.
+/// - invalidate: the cached catalogue is set aside until a refresh brings a new one, and a load
+///   already running is disowned so its late reply cannot overwrite the refresh the user asked for.
 public actor CachingProductCatalogueLoader: ProductCatalogueLoader, ProductCatalogueCache {
     private let decoratee: ProductCatalogueLoader
     private var cached: ProductCatalogue?
+    private var replaced: ProductCatalogue?
     private var loadInProgress: Task<ProductCatalogue, Error>?
     private var generation = 0
 
@@ -38,15 +40,20 @@ public actor CachingProductCatalogueLoader: ProductCatalogueLoader, ProductCatal
             let catalogue = try await task.value
             guard generation == generationAtStart else { return catalogue }
             cached = catalogue
+            replaced = nil
             loadInProgress = nil
             return catalogue
         } catch {
-            if generation == generationAtStart { loadInProgress = nil }
+            if generation == generationAtStart {
+                loadInProgress = nil
+                cached = replaced
+            }
             throw error
         }
     }
 
     public func invalidate() {
+        replaced = cached ?? replaced
         cached = nil
         loadInProgress = nil
         generation += 1

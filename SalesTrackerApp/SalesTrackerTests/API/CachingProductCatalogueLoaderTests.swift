@@ -120,6 +120,26 @@ final class CachingProductCatalogueLoaderTests: XCTestCase {
         XCTAssertEqual(callCount, 2, "The reply that arrived after invalidate must not be cached")
     }
 
+    func test_aRefreshThatFails_reportsItButKeepsTheCatalogueItWasReplacing() async throws {
+        let (sut, decoratee) = makeSUT()
+        let catalogue = makeCatalogue(productNamed: "iPhone")
+        await decoratee.completeWith(.success(catalogue))
+        _ = try await sut.load()
+
+        await sut.invalidate()
+        await decoratee.completeWith(.failure(anyNSError()))
+        do {
+            _ = try await sut.load()
+            XCTFail("Expected the refresh to report its failure")
+        } catch {}
+
+        let received = try await sut.load()
+
+        XCTAssertEqual(received.summaries(), catalogue.summaries())
+        let callCount = await decoratee.loadCallCount
+        XCTAssertEqual(callCount, 2, "The rows still on screen must open from the cache, not from the network that just failed")
+    }
+
     // MARK: - Helpers
 
     private func makeSUT() -> (CachingProductCatalogueLoader, LoaderSpy) {
