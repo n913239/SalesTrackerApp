@@ -47,3 +47,5 @@ public final class RemoteLoader<Resource: Sendable>: Sendable {
         }
     }
 }
+
+extension RemoteLoader: CurrencyRatesLoader where Resource == [CurrencyRate] {}

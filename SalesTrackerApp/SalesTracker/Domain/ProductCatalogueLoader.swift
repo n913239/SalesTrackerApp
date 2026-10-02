@@ -21,5 +21,3 @@ public protocol ProductCatalogueCache: Sendable {
 public protocol CurrencyRatesLoader: Sendable {
     func load() async throws -> [CurrencyRate]
 }
-
-extension RemoteLoader: CurrencyRatesLoader where Resource == [CurrencyRate] {}
