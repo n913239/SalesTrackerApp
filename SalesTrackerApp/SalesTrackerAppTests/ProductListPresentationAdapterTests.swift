@@ -65,7 +65,8 @@ final class ProductListPresentationAdapterTests: XCTestCase {
         let loader = CatalogueLoaderStub()
         await loader.hangLoads()
         var sut: ProductListPresentationAdapter? = makeAdapter(loader: loader, cache: CacheSpy(), view: ListViewSpy())
-        weak var weakSUT = sut
+        weak var weakSUT: ProductListPresentationAdapter?
+        weakSUT = sut
 
         sut?.refresh()
         await waitUntil("the load is in flight") { await loader.isHoldingALoad }

@@ -22,7 +22,8 @@ final class SalesTrackerUIComposerTests: XCTestCase {
             loginService: LoginService(client: client, tokenStore: TokenStoreSpy(), url: loginURL),
             onSuccess: {}
         )
-        weak var weakSUT = sut
+        weak var weakSUT: LoginViewController?
+        weakSUT = sut
 
         sut?.simulateAppearance()
         sut?.onLogin?("tester", "password")
@@ -43,7 +44,8 @@ final class SalesTrackerUIComposerTests: XCTestCase {
             catalogueCache: CacheSpy(),
             onSelect: { _ in }
         )
-        weak var weakSUT = sut
+        weak var weakSUT: ProductListViewController?
+        weakSUT = sut
 
         sut?.simulateAppearance()
         await waitUntil("the load is in flight") { await loader.isHoldingALoad }
@@ -66,7 +68,8 @@ final class SalesTrackerUIComposerTests: XCTestCase {
             catalogueCache: CacheSpy(),
             ratesLoader: rates
         )
-        weak var weakSUT = sut
+        weak var weakSUT: ProductDetailViewController?
+        weakSUT = sut
 
         sut?.simulateAppearance()
         await waitUntil("the load is in flight") { await loader.isHoldingALoad }
