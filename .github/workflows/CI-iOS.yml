@@ -8,17 +8,19 @@ on:
 
 jobs:
   test:
-    runs-on: macos-15
+    runs-on: xcode-27
     timeout-minutes: 30
 
     steps:
       - uses: actions/checkout@v6
 
       - name: Select Xcode
-        run: sudo xcode-select -s /Applications/Xcode_16.4.app/Contents/Developer
+        run: sudo xcode-select -s /Applications/Xcode_27.app/Contents/Developer && xcodebuild -version
 
       - name: Prepare Simulator
-        run: xcrun simctl list devices available
+        run: |
+          xcrun simctl list runtimes
+          xcrun simctl create "iPhone 16 CI" "iPhone 16" "com.apple.CoreSimulator.SimRuntime.iOS-27-0"
 
       - name: Build and Test iOS
         run: |
@@ -26,7 +28,7 @@ jobs:
             -project SalesTrackerApp/SalesTrackerApp.xcodeproj \
             -scheme "CI_iOS" \
             -testPlan "CI_iOS" \
-            -destination "platform=iOS Simulator,name=iPhone 16,OS=18.5" \
+            -destination "platform=iOS Simulator,name=iPhone 16 CI,OS=27.0" \
             -enableThreadSanitizer YES \
             -enableCodeCoverage YES \
             -resultBundlePath build/CI_iOS.xcresult

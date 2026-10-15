@@ -14,7 +14,7 @@ import SalesTracker
 ///
 /// Run it by hand before submitting:
 /// `xcodebuild test -project SalesTrackerApp/SalesTrackerApp.xcodeproj -scheme SalesTrackerAPIEndToEnd \
-///   -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.5'`
+///   -destination 'platform=iOS Simulator,name=iPhone 16,OS=27.0'`
 final class SalesTrackerAPIEndToEndTests: XCTestCase {
 
     private let backendURL = URL(string: "https://ile-b2p4.essentialdeveloper.com")!

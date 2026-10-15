@@ -121,18 +121,18 @@ colour tolerance: a pixel either matches exactly or counts against the 1%.
 xcodebuild clean build test \
   -project SalesTrackerApp/SalesTrackerApp.xcodeproj \
   -scheme CI_iOS -testPlan CI_iOS \
-  -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.5' \
+  -destination 'platform=iOS Simulator,name=iPhone 16,OS=27.0' \
   -enableThreadSanitizer YES -enableCodeCoverage YES
 
 # the end-to-end tests, by hand, before submitting
 xcodebuild test \
   -project SalesTrackerApp/SalesTrackerApp.xcodeproj \
   -scheme SalesTrackerAPIEndToEnd \
-  -destination 'platform=iOS Simulator,name=iPhone 16,OS=18.5' \
+  -destination 'platform=iOS Simulator,name=iPhone 16,OS=27.0' \
   -parallel-testing-enabled NO
 ```
 
-Built with Xcode 16.4 against iOS 18.5. The whole project compiles under
+Built with Xcode 27.0 against iOS 27.0. The whole project compiles under
 `SWIFT_STRICT_CONCURRENCY = complete`, so the compiler - not a convention - is what keeps the app
 to one concurrency model.
 
